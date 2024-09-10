@@ -25,13 +25,28 @@ void myInit(void)
 
 }
 
-int main(int argc. char** argv)
+void display(void)
+{
+
+}
+
+void mouse(int button, int state, int x, int y)
+{
+	
+}
+
+void keyboard(unsigned char key, int x, int y)
+{
+	
+}
+
+int main(int argc, char** argv)
 {
 	myglutInit(argc,argv);
 	myInit();
 
 	glutMouseFunc(mouse);
 	glutKeyboardFunc(keyboard);
-	glutDisplayFunc(mouse);
+	glutDisplayFunc(display);
 	glutMainLoop();
 }
