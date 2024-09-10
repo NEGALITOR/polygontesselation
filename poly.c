@@ -27,7 +27,7 @@ void myInit(void)
 
 void display(void)
 {
-
+	
 }
 
 void mouse(int button, int state, int x, int y)
@@ -37,7 +37,7 @@ void mouse(int button, int state, int x, int y)
 
 void keyboard(unsigned char key, int x, int y)
 {
-	
+		
 }
 
 int main(int argc, char** argv)
