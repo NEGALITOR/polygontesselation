@@ -82,12 +82,12 @@ void display( void )
    
     /* plot new point */
 
-        glBegin(GL_POINTS);
-            glVertex2fv(p); 
-        glEnd();
-  
+    glBegin(GL_POINTS);
+        glVertex2fv(p); 
+    glEnd();
+
      
-     glFlush(); /* clear buffers */
+    glFlush(); /* clear buffers */
 
  }
 
@@ -102,10 +102,10 @@ void drawBox( int x, int y )
     p[0] = x;
     p[1] = WINDOW_MAX_Y - y;  
     
-        glBegin(GL_POINTS);
-            glVertex2fv(p); 
-        glEnd();
-        glFlush();
+    glBegin(GL_POINTS);
+        glVertex2fv(p); 
+    glEnd();
+    glFlush();
 }
 
 
@@ -128,8 +128,8 @@ void eraseBox( int x, int y )
 
 void clearBox()
 {
-       glClear(GL_COLOR_BUFFER_BIT); 
-       glFlush();
+    glClear(GL_COLOR_BUFFER_BIT); 
+    glFlush();
 }
 
 
