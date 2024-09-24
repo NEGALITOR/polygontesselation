@@ -12,7 +12,7 @@ const int WINDOW_MAX = 800;
 const float WORLD_COORDINATE_MIN = 0.0;
 const float WORLD_COORDINATE_MAX = 800.0;
 
-typedef GLfloat point[2]; 
+typedef GLfloat point[2];
 
 
 typedef struct VectorPoint
@@ -21,7 +21,11 @@ typedef struct VectorPoint
 
 	struct VectorPoint* next;
 	struct VectorPoint* prev;
+
 }VectorPoint;
+
+VectorPoint* head;
+VectorPoint* tail;
 
 
 void myglutInit(int argc, char** argv)
@@ -39,7 +43,6 @@ void myInit(void)
 	glColor3f(1.0, 0.0, 0.0); // draw in red
 	glPointSize(10.0);
 
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(WORLD_COORDINATE_MIN, WORLD_COORDINATE_MAX, 
@@ -51,7 +54,7 @@ void myInit(void)
 void display(void)
 {
 	/* define a point data type */
-	VectorPoint vec;
+	//VectorPoint vec;
     
 
     glClear(GL_COLOR_BUFFER_BIT);  /*clear the window */
@@ -86,15 +89,58 @@ void display(void)
 
 void drawBox(int x, int y)
 {
-	VectorPoint vec;
-
 	glColor3f(red, green, blue);
 
-	vec.p[0] = x;
-    vec.p[1] = WINDOW_MAX - y;
+	//VectorPoint vec;
+	//printf("| %p |\n", &vec);
+
+	if (head == NULL) 
+	{
+		head = (VectorPoint*) malloc(sizeof(VectorPoint));
+		tail = head;
+		//printf("Pointer: %d\n", *head);
+		//printf("Pointer: %d\n", *tail);
+
+		head->next = head;
+		head->prev = head;
+		tail->next = head;
+		tail->prev = head;
+
+		//printf("Pointer: %d\n", head->next);
+		//printf("Pointer: %d\n", head->prev);
+
+		printf("updated head\n");
+	}
+	else
+	{
+		tail->next = (VectorPoint*) malloc(sizeof(VectorPoint));
+		tail->next->prev = tail;
+		tail = tail->next;
+
+		// Make Linked List Circular
+		tail->next = head;
+		head->prev = tail;
+		
+		printf("updated tail\n");
+		printf("%p %p\n\n", (void *) tail->prev, (void *) tail);
+	}
+
+	
+
+	tail->p[0] = x;
+    tail->p[1] = WINDOW_MAX - y;
+
+	
+	printf("-----------------------------------------\n");
+	printf("Clicked Point: %d     %d\n", x, y);
+	printf("Point: %.0f    %.0f\n", tail->p[0], tail->p[1]);
+	printf("Head: %.0f    %.0f\nTail Prev: %.0f    %.0f | Tail Curr %.0f    %.0f | Tail Next %.0f    %.0f\n", 
+			head->p[0], head->p[1], tail->prev->p[0], tail->prev->p[1], tail->p[0], tail->p[1], tail->next->p[0], tail->next->p[1]);
+	printf("-----------------------------------------\n\n");
+	
 
 	glBegin(GL_POINTS);
-        glVertex2fv(vec.p); 
+        glVertex2fv(tail->p); 
     glEnd();
 
     glFlush();
@@ -108,10 +154,11 @@ void clearBox()
 
 void mouse(int button, int state, int x, int y)
 {
+
 	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
-		printf("%d	%d\n", x, y);
 		drawBox(x, y);
+		
 	}
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
@@ -159,6 +206,9 @@ int main(int argc, char** argv)
 {
 	myglutInit(argc,argv);
 	myInit();
+
+	
+
 
 	glutMouseFunc(mouse);
 	glutKeyboardFunc(keyboard);
