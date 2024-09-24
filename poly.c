@@ -1,10 +1,7 @@
 #include <GL/glut.h>
 #include <stdio.h>
 
-struct points 
-{
 
-};
 
 GLubyte red, green, blue;
 int COLORS_DEFINED;
@@ -14,6 +11,17 @@ const int WINDOW_MAX = 800;
 
 const float WORLD_COORDINATE_MIN = 0.0;
 const float WORLD_COORDINATE_MAX = 800.0;
+
+typedef GLfloat point[2]; 
+
+
+typedef struct VectorPoint
+{
+	point p;
+
+	struct VectorPoint* next;
+	struct VectorPoint* prev;
+}VectorPoint;
 
 
 void myglutInit(int argc, char** argv)
@@ -27,7 +35,11 @@ void myglutInit(int argc, char** argv)
 
 void myInit(void)
 {
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(1.0, 1.0, 1.0, 1.0); // white background 
+	glColor3f(1.0, 0.0, 0.0); // draw in red
+	glPointSize(10.0);
+
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(WORLD_COORDINATE_MIN, WORLD_COORDINATE_MAX, 
@@ -39,10 +51,8 @@ void myInit(void)
 void display(void)
 {
 	/* define a point data type */
-
-    typedef GLfloat point[2];     
-
-    point p; /* A point in 2-D space */
+	VectorPoint vec;
+    
 
     glClear(GL_COLOR_BUFFER_BIT);  /*clear the window */
 
@@ -54,29 +64,94 @@ void display(void)
 
     glColor3ub( red, green, blue ); 
 
-    /* define point */
+	/*
+    // define point
 
-    p[0] = 100; 
-    p[1] = 100;
+    vec.p[0] = 100; 
+    vec.p[1] = 100;
    
-    /* plot new point */
+    // plot new point 
 
     glBegin(GL_POINTS);
-        glVertex2fv(p); 
+        glVertex2fv(vec.p); 
     glEnd();
+
+	*/
 
      
     glFlush(); /* clear buffers */
 }
 
+
+
+void drawBox(int x, int y)
+{
+	VectorPoint vec;
+
+	glColor3f(red, green, blue);
+
+	vec.p[0] = x;
+    vec.p[1] = WINDOW_MAX - y;
+
+	glBegin(GL_POINTS);
+        glVertex2fv(vec.p); 
+    glEnd();
+
+    glFlush();
+}
+
+void clearBox()
+{
+    glClear(GL_COLOR_BUFFER_BIT); 
+    glFlush();
+}
+
 void mouse(int button, int state, int x, int y)
 {
-	
+	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+	{
+		printf("%d	%d\n", x, y);
+		drawBox(x, y);
+	}
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+		// TODO
+		//		Connect last point with first point
+	}
+	if (button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN)
+	{
+		// TODO
+		//		Clear linked list
+
+		printf ("%d   %d\n", x, y);
+        clearBox();
+	}
 }
 
 void keyboard(unsigned char key, int x, int y)
 {
 	if (key == 'q' || key == 'Q') exit(0);
+
+	if (key == 'f' || key == 'F')
+	{
+		// TODO
+		//		Draw filled polygon without tesselate
+	}
+	if (key == 't' || key == 'T')
+	{
+		// TODO
+		//		Tesselate w/ areas of each triangle
+	}
+	if (key == 'p' || key == 'P')
+	{
+		// TODO
+		//		Fill and Tesselate
+	}
+	if (key == 'l' || key == 'L')
+	{
+		// TODO
+		//		Restore to initial state (no fill and no tes)
+	}
 
 }
 
