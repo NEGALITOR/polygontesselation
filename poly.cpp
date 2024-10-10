@@ -191,6 +191,7 @@ vector<triangle> tesselate()
 	vector<triangle> triList;
 	int isAllFound = -1;
 	bool inTriangle = false;
+	triangleList.clear();
 
 
 	indexList = flipVectorWinding(indexList);
@@ -200,6 +201,7 @@ vector<triangle> tesselate()
 	while (isAllFound != 0)
 	{
 		isAllFound = 0;
+		
 
 		printf("--------------------\n");
 		for (int i = 1; i < indexList.size()-1; i++)
@@ -222,37 +224,11 @@ vector<triangle> tesselate()
 
 			float interiorAngle = getInteriorAngle(v1, v2);
 
-			printf("Interior Angle: %f\n", interiorAngle);
+			//printf("Interior Angle: %f\n", interiorAngle);
 
 			
-			if (interiorAngle < 0)
+			if (crossProduct(v1,v2) < 0)
 				continue;
-			/*if (interiorAngle < 0)
-			{
-				triangle tri = {p3, p2, p1};
-				vector<point> nonTriPoints = filterPoints(indexList, tri);
-
-				for (int j = 0; j < nonTriPoints.size(); j++)
-					if (isInTriangle(nonTriPoints[j], tri[2], tri[1], tri[0]))
-						inTriangle = true;
-
-				printf("%d\n", inTriangle);
-				if (!inTriangle)
-					continue;
-				else
-				{
-					glBegin(GL_LINES);
-						glVertex2iv(tri[0].data());
-						glVertex2iv(tri[2].data());
-					glEnd();
-					glFlush();
-
-					triList.push_back(tri);
-					indexList.erase(indexList.begin() + i);
-					isAllFound++;
-					break;
-				}
-			}*/
 			else
 			{
 				triangle tri = {p1, p2, p3};
@@ -262,12 +238,14 @@ vector<triangle> tesselate()
 				//printVec(indexList);
 				//printVec(nonTriPoints);
 
+				inTriangle = false;
+
 				for (int j = 0; j < nonTriPoints.size(); j++)
 					if (isInTriangle(nonTriPoints[j], tri[0], tri[1], tri[2]))
 						inTriangle = true;
 
 
-				printf("%d\n", inTriangle);
+				//printf("%d\n", inTriangle);
 				if (inTriangle)
 					continue;
 				else
@@ -281,6 +259,7 @@ vector<triangle> tesselate()
 					triList.push_back(tri);
 					indexList.erase(indexList.begin() + i);
 					isAllFound++;
+					//printf("%d\n", isAllFound);
 					break;
 				}
 				
