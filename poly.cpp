@@ -190,7 +190,7 @@ vector<triangle> tesselate()
 {
 	vector<point> indexList = polygon;
 	vector<triangle> triList;
-	int isAllFound = -1;
+	int isAllTriFound = -1;
 	bool inTriangle = false;
 	triangleList.clear();
 	int count = 0;
@@ -201,9 +201,9 @@ vector<triangle> tesselate()
 	//printVec(indexList);
 
 	printf(" -------------------------------------------------------------------------\n");
-	while (isAllFound != 0)
+	while (isAllTriFound != 0)
 	{
-		isAllFound = 0;
+		isAllTriFound = 0;
 		
 
 		for (int i = 1; i < indexList.size()-1; i++)
@@ -283,7 +283,7 @@ vector<triangle> tesselate()
 
 					triList.push_back(tri);
 					indexList.erase(indexList.begin() + i);
-					isAllFound++;
+					isAllTriFound++;
 					//printf("%d\n", isAllFound);
 					break;
 				}
@@ -438,10 +438,10 @@ void mouse(int button, int state, int x, int y)
 	if (button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN)
 	{
 		polygon.clear();
+		triangleList.clear();
 		glClear(GL_COLOR_BUFFER_BIT);
 		glFlush();
 		closed = 0;
-		
 	}
 
 }
