@@ -1,3 +1,6 @@
+// Taha Tas
+// Ear Clipping Algorithm
+
 #include <GL/glut.h>
 #include <iostream>
 #include <cmath>
@@ -24,6 +27,7 @@ vector<point> polygon;
 vector<triangle> triangleList;
 int closed = 0;
 
+// Prints the polygon vertices on screen
 void printVec(vector<point> poly)
 {
 	for (int i = 0; i < poly.size(); i++)
@@ -33,6 +37,7 @@ void printVec(vector<point> poly)
 	printf("\n");
 }
 
+// Prints all the triangles made on screen
 void printTriList(vector<triangle> triList)
 {
 	for (int i = 0; i < triList.size(); i++)
@@ -42,32 +47,45 @@ void printTriList(vector<triangle> triList)
 	printf("\n");
 }
 
+// Gets the area of triangle
+float getTriArea(int x1, int y1, int x2, int y2, int x3, int y3)
+{
+	return fabs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0);
+}
+
+// Prints the area of each triangle within the triangle list
 void printArea(point p1, point p2, point p3)
 {
-	float areaOfTri = 0.5 * fabs( p1[0] * (p2[1] - p3[1]) + p2[0] * (p3[1] - p1[1]) + p3[0] * (p1[1] - p2[1]));
+	float areaOfTri = getTriArea(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1]);
 	printf("| Area of Triangle: (%3d, %3d) | (%3d, %3d) | (%3d, %3d) is %9.2f |\n", p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], areaOfTri);
 }
 
+// Calculates cross products
 float crossProduct(point p1, point p2)
 {
 	return (p1[0] * p2[1]) - (p1[1] * p2[0]);
 }
 
+// Calculates dot products
 float dotProduct(point p1, point p2)
 {
 	return (p1[0] * p2[0]) + (p1[1] * p2[1]);
 }
 
+// Calculates interior angles
 float getInteriorAngle(point p1, point p2)
 {
 	return atan2(crossProduct(p1, p2), dotProduct(p1, p2));
 }
 
+// Calculates determinents
 float determinent(float matrix[2][2])
 {
 	return (matrix[0][0] * matrix[1][1]) - (matrix[0][1] * matrix[1][0]);
 }
 
+// Uses Cramer's rule to determine intersections
+// Checks for intersections based on 2 points and comparing it to other lines
 bool isIntersect(point p1, point p2)
 {
 	float x1 = p2[0], x2 = p1[0], x3, x4, a;
@@ -126,6 +144,7 @@ bool isIntersect(point p1, point p2)
 	return false;
 }
 
+// Gets the polgon's area. Used for checking if polygon vertex list winding is CW or CCW and flip accordingly to CCW
 float getPolyArea(vector<point> poly)
 {
 	float area = 0;
@@ -142,11 +161,7 @@ float getPolyArea(vector<point> poly)
 	return area/2;
 }
 
-float getTriArea(int x1, int y1, int x2, int y2, int x3, int y3)
-{
-	return abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0);
-}
-
+// Flip the vector to CCW
 vector<point> flipVectorWinding(vector<point> poly)
 {
 	if (getPolyArea(poly) < 0)
@@ -166,6 +181,7 @@ vector<point> filterPoints(vector<point> poly, triangle tri)
 	return newPoints;
 }
 
+// Checks if a vertex is within the triangle that needs to be made
 bool isInTriangle(point p, point a, point b, point c)
 {
 	int ax = a[0];
@@ -186,7 +202,7 @@ bool isInTriangle(point p, point a, point b, point c)
 }
 
 
-vector<triangle> tesselate()
+vector<triangle> tessellate()
 {
 	vector<point> indexList = polygon;
 	vector<triangle> triList;
@@ -197,10 +213,11 @@ vector<triangle> tesselate()
 
 
 	indexList = flipVectorWinding(indexList);
-	//printVec(polygon);
-	//printVec(indexList);
 
 	printf(" -------------------------------------------------------------------------\n");
+
+	// isAllTriFound checks for the amount of tris being made in a given point
+	// If a tri isnt made, that means that the run has ended
 	while (isAllTriFound != 0)
 	{
 		isAllTriFound = 0;
@@ -212,32 +229,22 @@ vector<triangle> tesselate()
 			point p1 = indexList[i-1];
 			point p2 = indexList[i];
 			point p3 = indexList[(i+1) % indexList.size()];
-			
 
-			//printf("p1: %d %d | ", p1[0], p1[1]);
-			//printf("p2: %d %d | ", p2[0], p2[1]);
-			//printf("p3: %d %d\n", p3[0], p3[1]);
-			
 			// Middle point to 1st End point
 			point v1 = {p2[0] - p1[0], p2[1] - p1[1]};
 			// 2nd End point to Middle point
 			point v2 = {p3[0] - p2[0], p3[1] - p2[1]};
 
-			//printf("v1: %d %d | ", v1[0], v1[1]);
-			//printf("v2: %d %d\n", v2[0], v2[1]);
-
 			float interiorAngle = getInteriorAngle(v1, v2);
-			//printf("%d %d | %d %d | %d %d | %f\n", p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], interiorAngle);
-
-			//printf("Interior Angle: %f\n", interiorAngle);
-
 			inTriangle = false;
 
+			// Checks for interior angle for concavity
 			if (interiorAngle < 0)
 			{
 				//cout << "failed" << endl;
 				continue;
 			}
+			// Checks for collinearity
 			if (interiorAngle == 0)
 			{
 				indexList.erase(indexList.begin() + i);
@@ -245,46 +252,41 @@ vector<triangle> tesselate()
 			}
 			else
 			{
+				// Creates a tri, compares it to all the non tri points and determines if the 4th vertex is in the triangle
 				triangle tri = {p1, p2, p3};
 
 				vector<point> nonTriPoints = filterPoints(indexList, tri);
 
-				//cout << endl;
-				//printVec(indexList);
-				//printVec(nonTriPoints);
-				//cout << endl;
 
-				//inTriangle = false;
-
+				// Checks if a vertex is in the triangle to be made
 				for (int j = 0; j < nonTriPoints.size(); j++)
 				{
 					if (isInTriangle(nonTriPoints[j], tri[0], tri[1], tri[2]))
 					{
 						inTriangle = true;
-						//cout << inTriangle << endl;
 					}
 				}
 
-
-				//printf("%d\n", inTriangle);
 				if (inTriangle == true)
 					continue;
 				else
 				{
+					// Draw line
 					glBegin(GL_LINES);
 						glVertex2iv(tri[0].data());
 						glVertex2iv(tri[2].data());
 					glEnd();
 					glFlush();
 
+					// Print area on screen
 					count++;
 					printf("|%3d", count);
 					printArea(tri[0], tri[1], tri[2]);
 
+					// Push tri into triangle list, erase  p2 from index list and increment that tri has been found
 					triList.push_back(tri);
 					indexList.erase(indexList.begin() + i);
 					isAllTriFound++;
-					//printf("%d\n", isAllFound);
 					break;
 				}
 				
@@ -298,6 +300,7 @@ vector<triangle> tesselate()
 	return triList;
 }
 
+// Fills the polygon without tesselation
 void fillPolygon(vector<point> poly)
 {	
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -313,6 +316,7 @@ void fillPolygon(vector<point> poly)
 	
 }
 
+// Fills polygon with tesselation
 void fillTessPolygon(vector<triangle> triList)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -330,6 +334,7 @@ void fillTessPolygon(vector<triangle> triList)
 	glFlush();
 }
 
+// Restores original lines and vertices w/o tesselation and fill
 void restoreOriginal(vector<point> poly)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -348,6 +353,7 @@ void restoreOriginal(vector<point> poly)
 	glFlush();
 }
 
+// Connect the two ends with left click and determine if intersection occurs
 void connectEnds()
 {
 	if (polygon.size() < 3) 
@@ -372,7 +378,8 @@ void connectEnds()
 
 }
 
-
+// Manages right click. Allows placement of vertices with lines/dots connections
+// Checks for intersections and adds the vertex to the index list
 void drawPoly(int x, int y)
 {
 	glColor3f(red, green, blue);
@@ -424,6 +431,10 @@ void display(void)
     glFlush(); /* clear buffers */
 }
 
+// Mouse interactions
+// Right Click: Place a vertex on screen
+// Left Click: Connect the ends with a lin
+// Middle Click: Reset
 void mouse(int button, int state, int x, int y)
 {
 
@@ -446,6 +457,13 @@ void mouse(int button, int state, int x, int y)
 
 }
 
+
+// Keyboard Interactions
+// Q: Quit
+// F: Fill polygon w/o tess
+// T: Tessellate polygon
+// P: Fill tessellated polygon
+// L: Restore to original polygon w/o tesselation and fill
 void keyboard(unsigned char key, int x, int y) {
 	if (key == 'q' || key == 'Q') exit(0);
 
@@ -460,8 +478,7 @@ void keyboard(unsigned char key, int x, int y) {
 	if ((key == 't' || key == 'T'))
 	{
 		triangleList.clear();
-		triangleList = tesselate();
-		//printTriList(triangleList);
+		triangleList = tessellate();
 	}
 
 	if (key == 'p' || key == 'P')
@@ -469,12 +486,11 @@ void keyboard(unsigned char key, int x, int y) {
 		if (triangleList.empty())
 		{
 			triangleList.clear();
-			triangleList = tesselate();
+			triangleList = tessellate();
 		}
 		
 		fillTessPolygon(triangleList);
 		printf("Filled w/ Tesselation.\n\n");
-		//printTriList(triangleList);
 	}
 
 	if (key == 'l' || key == 'L') 
