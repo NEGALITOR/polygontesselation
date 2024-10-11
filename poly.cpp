@@ -367,6 +367,7 @@ void connectEnds()
 		return;
 	}
 
+	printf("\nConnected Ends.\n");
 	closed = 1;
 
 	glBegin(GL_LINES);
@@ -397,6 +398,7 @@ void drawPoly(int x, int y)
 	}
 
 	polygon.push_back(p);
+	printf("Point Added: (%d, %d)\n", p[0], p[1]);
 
 	glBegin(GL_POINTS);
 		glVertex2iv(polygon.back().data());
@@ -442,9 +444,10 @@ void mouse(int button, int state, int x, int y)
 	{
 		drawPoly(x, y);
 	}
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	if (closed == 0 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		connectEnds();
+		
 	}
 	if (button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN)
 	{
@@ -453,6 +456,8 @@ void mouse(int button, int state, int x, int y)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glFlush();
 		closed = 0;
+
+		printf("Cleared Polygon.\n");
 	}
 
 }
