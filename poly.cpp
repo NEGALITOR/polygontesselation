@@ -317,17 +317,15 @@ void fillTessPolygon(vector<triangle> triList)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	triList = tesselate();
-
-	glBegin(GL_POLYGON);
-		for (int i = 0; i < triList.size(); i++)
-		{
+	for (int i = 0; i < triList.size(); i++)
+	{
+		glBegin(GL_POLYGON);
 			glVertex2iv(triList[i][0].data());
 			glVertex2iv(triList[i][1].data());
 			glVertex2iv(triList[i][2].data());
-		}
-	glEnd();
-	
+		
+		glEnd();
+	}
 
 	glFlush();
 }
@@ -374,6 +372,7 @@ void connectEnds()
 
 }
 
+
 void drawPoly(int x, int y)
 {
 	glColor3f(red, green, blue);
@@ -407,6 +406,7 @@ void drawPoly(int x, int y)
 	glFlush();
 }
 
+// Input and Output Device Interactions
 void display(void)
 {
 
@@ -453,8 +453,8 @@ void keyboard(unsigned char key, int x, int y) {
 
 	if (key == 'f' || key == 'F') 
 	{
-		triangleList.clear();
 		fillPolygon(polygon);
+		printf("Filled w/o Tesselation.\n\n");
 	}
         
 	if ((key == 't' || key == 'T'))
@@ -466,18 +466,26 @@ void keyboard(unsigned char key, int x, int y) {
 
 	if (key == 'p' || key == 'P')
 	{
-		triangleList.clear();
+		if (triangleList.empty())
+		{
+			triangleList.clear();
+			triangleList = tesselate();
+		}
+		
 		fillTessPolygon(triangleList);
+		printf("Filled w/ Tesselation.\n\n");
 		//printTriList(triangleList);
 	}
 
 	if (key == 'l' || key == 'L') 
 	{
 		restoreOriginal(polygon);
+		printf("Restored Original Polygon Outline.\n\n");
 	}
     
 }
 
+// OpenGL and GLUT Initialization
 void myglutInit(int argc, char** argv)
 {
 	glutInit(&argc, argv);
