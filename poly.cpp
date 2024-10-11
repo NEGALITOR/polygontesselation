@@ -35,7 +35,6 @@ void printVec(vector<point> poly)
 
 void printTriList(vector<triangle> triList)
 {
-	//printf("Triangle: ");
 	for (int i = 0; i < triList.size(); i++)
 	{
 		printf("Triangle: %d %d | %d %d | %d %d\n", triList[i][0][0], triList[i][0][1], triList[i][1][0], triList[i][1][1], triList[i][2][0], triList[i][2][1]);
@@ -43,6 +42,11 @@ void printTriList(vector<triangle> triList)
 	printf("\n");
 }
 
+void printArea(point p1, point p2, point p3)
+{
+	float areaOfTri = 0.5 * fabs( p1[0] * (p2[1] - p3[1]) + p2[0] * (p3[1] - p1[1]) + p3[0] * (p1[1] - p2[1]));
+	printf("| Area of Triangle: (%3d, %3d) | (%3d, %3d) | (%3d, %3d) is %9.2f |\n", p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], areaOfTri);
+}
 
 float crossProduct(point p1, point p2)
 {
@@ -51,12 +55,11 @@ float crossProduct(point p1, point p2)
 
 float dotProduct(point p1, point p2)
 {
-	return p1[0] * p2[0] + p1[1] * p2[1];
+	return (p1[0] * p2[0]) + (p1[1] * p2[1]);
 }
 
 float getInteriorAngle(point p1, point p2)
 {
-	//return (M_PI + atan2(crossProduct(p1, p2), dotProduct(p1, p2))) * (180/M_PI);
 	return atan2(crossProduct(p1, p2), dotProduct(p1, p2));
 }
 
@@ -151,7 +154,6 @@ vector<point> flipVectorWinding(vector<point> poly)
 	return poly;
 }
 
-
 vector<point> filterPoints(vector<point> poly, triangle tri)
 {
 	vector<point> newPoints;
@@ -181,7 +183,6 @@ bool isInTriangle(point p, point a, point b, point c)
 	float areaC = getTriArea(ax, ay, bx, by, px, py);
 	
 	return totalArea == areaA + areaB + areaC;
-
 }
 
 
@@ -192,23 +193,26 @@ vector<triangle> tesselate()
 	int isAllFound = -1;
 	bool inTriangle = false;
 	triangleList.clear();
+	int count = 0;
 
 
 	indexList = flipVectorWinding(indexList);
-	printVec(polygon);
-	printVec(indexList);
+	//printVec(polygon);
+	//printVec(indexList);
 
+	printf(" -------------------------------------------------------------------------\n");
 	while (isAllFound != 0)
 	{
 		isAllFound = 0;
 		
 
-		printf("--------------------\n");
 		for (int i = 1; i < indexList.size()-1; i++)
 		{
+			
 			point p1 = indexList[i-1];
 			point p2 = indexList[i];
 			point p3 = indexList[(i+1) % indexList.size()];
+			
 
 			//printf("p1: %d %d | ", p1[0], p1[1]);
 			//printf("p2: %d %d | ", p2[0], p2[1]);
@@ -223,30 +227,47 @@ vector<triangle> tesselate()
 			//printf("v2: %d %d\n", v2[0], v2[1]);
 
 			float interiorAngle = getInteriorAngle(v1, v2);
+			//printf("%d %d | %d %d | %d %d | %f\n", p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], interiorAngle);
 
 			//printf("Interior Angle: %f\n", interiorAngle);
 
-			
-			if (crossProduct(v1,v2) < 0)
+			inTriangle = false;
+
+			if (interiorAngle < 0)
+			{
+				//cout << "failed" << endl;
 				continue;
+			}
+			if (interiorAngle == 0)
+			{
+				indexList.erase(indexList.begin() + i);
+				continue;
+			}
 			else
 			{
 				triangle tri = {p1, p2, p3};
 
 				vector<point> nonTriPoints = filterPoints(indexList, tri);
 
+				//cout << endl;
 				//printVec(indexList);
 				//printVec(nonTriPoints);
+				//cout << endl;
 
-				inTriangle = false;
+				//inTriangle = false;
 
 				for (int j = 0; j < nonTriPoints.size(); j++)
+				{
 					if (isInTriangle(nonTriPoints[j], tri[0], tri[1], tri[2]))
+					{
 						inTriangle = true;
+						//cout << inTriangle << endl;
+					}
+				}
 
 
 				//printf("%d\n", inTriangle);
-				if (inTriangle)
+				if (inTriangle == true)
 					continue;
 				else
 				{
@@ -256,6 +277,10 @@ vector<triangle> tesselate()
 					glEnd();
 					glFlush();
 
+					count++;
+					printf("|%3d", count);
+					printArea(tri[0], tri[1], tri[2]);
+
 					triList.push_back(tri);
 					indexList.erase(indexList.begin() + i);
 					isAllFound++;
@@ -264,12 +289,12 @@ vector<triangle> tesselate()
 				}
 				
 			}
-			printf("--------------------\n");
+			
 
 		}
 		
 	}
-
+	printf(" -------------------------------------------------------------------------\n\n");
 	return triList;
 }
 
@@ -327,8 +352,16 @@ void restoreOriginal(vector<point> poly)
 
 void connectEnds()
 {
-	if (polygon.size() < 3) return;
-	if (isIntersect(polygon.back(), polygon.front())) return;
+	if (polygon.size() < 3) 
+	{
+		printf("Not enough verticies to connect ends.\n");
+		return;
+	}
+	if (isIntersect(polygon.back(), polygon.front())) 
+	{
+		printf("First and last connection intersects another line.\n");
+		return;
+	}
 
 	closed = 1;
 
@@ -349,11 +382,11 @@ void drawPoly(int x, int y)
 	p[0] = x;
 	p[1] = WINDOW_MAX-y;
 
-	printf("Point Clicked: %d %d\n", p[0], p[1]);
+	//printf("Point Clicked: %d %d\n", p[0], p[1]);
 
 	if (!polygon.empty() && polygon.size() > 2 && isIntersect(p, polygon.back()))
 	{
-		//printf("Lines intersect.\n");
+		printf("Lines intersect.\n");
 		return;
 	}
 
@@ -420,25 +453,28 @@ void keyboard(unsigned char key, int x, int y) {
 
 	if (key == 'f' || key == 'F') 
 	{
+		triangleList.clear();
 		fillPolygon(polygon);
 	}
         
 	if ((key == 't' || key == 'T'))
 	{
+		triangleList.clear();
 		triangleList = tesselate();
-		printTriList(triangleList);
+		//printTriList(triangleList);
 	}
 
 	if (key == 'p' || key == 'P')
 	{
+		triangleList.clear();
 		fillTessPolygon(triangleList);
+		//printTriList(triangleList);
 	}
 
 	if (key == 'l' || key == 'L') 
 	{
 		restoreOriginal(polygon);
 	}
-
     
 }
 
