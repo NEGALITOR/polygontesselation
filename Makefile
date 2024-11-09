@@ -17,9 +17,11 @@ LIBDIRS = -L/usr/lib64
 INCDIRS = -I/usr/include
 LDLIBS =  -lglut -lGL -lGLU -lX11 -lm
 
-.c:
-	$(CC)  $@.c $(INCDIRS) $(LIBDIRS) $(LDLIBS) -o $@.out
+OBJS = poly.o
 
-.cpp:
-	$(C++)  -O $@.cpp -g $(INCDIRS) $(LIBDIRS) $(LDLIBS) -o $@.out
 
+poly : $(OBJS)
+	$(C++) -O -g -o poly $(OBJS) $(INCDIRS) $(LIBDIRS) $(LDLIBS)
+
+poly.o : poly.cpp
+	$(C++) -O -g -c poly.cpp
